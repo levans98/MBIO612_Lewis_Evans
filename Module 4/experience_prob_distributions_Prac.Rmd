@@ -1,0 +1,128 @@
+### Q0: Sampling and Distribution
+
+You are studying the population of a specific type of marine algae in different locations. Assume the algal density is normally distributed. You take samples from two locations (Location A and Location B) to compare the algae populations. Generate synthetic data to represent the algal density (individuals per square meter) at these two locations. Assume a mean density of 200 and 220 individuals/m^2 with a common standard deviation of 20 individuals/m^2 for both locations, with 50 samples from each location.
+
+
+```{r}
+A <- rnorm(50, 200, 20)
+B <- rnorm(50, 220, 20)
+```
+
+### Q1: Data Cleaning
+
+Check your dataset for any outliers.
+
+
+```{r}
+#We can see the distributution here - Looks as though Hist A has some outliers on the lower end of the scale
+qqnorm(A)
+qqnorm(B)
+# Here are outliers above 3 SD away from the mean.
+# A
+Tmin = 200 - (3*20)
+Tmax = 200 + (3*20)
+A[which(A < Tmin | A > Tmax)]
+
+#B 
+Tmin = 220 - (3*20)
+Tmax = 220 + (3*20)
+B[which(B < Tmin | B > Tmax)]
+```
+
+### Q2: Visualization and Kernel Density Estimation (KDE)
+
+Plot a Kernel Density Estimation (geom_density plot) to visualize the distribution of algal densities at both locations.
+
+```{r}
+d.f <- data.frame(A, B)
+library(ggplot2)
+# Collating the data using rep to plot 50 A's and 50 B's and then fill sheet with rnorm data. 
+d.f <- data.frame(Location = c(rep("A", 50), rep("B", 50)), Algal_density = c(A, B))
+
+
+ggplot(d.f, aes(x = Algal_density, fill = Location)) +
+  geom_density(alpha = 0.5)
+
+
+```
+
+### Q3: Binomial Distribution
+Suppose in a new survey, at each location, you take 10 random samples and in each sample, you identify whether a particular species of marine algae is present or not. Assume the probability of finding this species in a sample is 0.7 at Location A and 0.5 at Location B.
+
+Simulate this scenario using a binomial distribution, and compare the probability of finding the species in at least 7 out of 10 samples at both locations.
+
+```{r}
+#binominal 50 x 10 sample test with a 0.7 and 0.5 probability of finsing the algal species
+Loc.A <- rbinom(50 ,10, 0.7)
+print(Loc.A)
+Loc.B <- rbinom(50, 10, 0.5)
+print(Loc.B)
+
+median(Loc.A) - median(Loc.B)
+```
+
+### Q4: Poisson Distribution
+Imagine a scenario where you are studying the occurrences of a particular rare marine event, such as the sighting of a rare marine species, over a set period at a specified location. Assume the average rate of occurrence is 3 per month.
+
+Utilize a Poisson distribution to calculate the probability of observing exactly 5 occurrences in a month, and the probability of observing 3 or fewer occurrences in a month.
+
+```{r}
+# Probability of observing exactly 5 occurrences in a month
+probability_5 <- dpois(5, lambda = 3)
+
+# Probability of observing 3 or fewer occurrences in a month
+probability_3_or_fewer <- ppois(3, lambda = 3)
+
+probability_5
+probability_3_or_fewer
+```
+
+### Q5: 
+consider the following two lists. 
+
+```{r}
+list1 <- c(44.40, 47.70, 65.59, 50.71, 51.29, 67.15, 54.61, 37.35, 43.13, 45.54, 62.24, 53.60, 54.01, 51.11, 
+           44.44, 67.87, 54.98, 30.33, 57.01, 45.27, 39.32, 47.82, 39.74, 42.71, 43.75, 33.13, 58.38, 51.53, 
+           38.62, 62.54, 54.26, 47.05, 58.95, 58.78, 58.22, 56.89, 55.54, 49.38, 46.94, 46.20, 43.05, 47.92, 
+           37.35, 71.69, 62.08, 38.77, 45.97, 45.33, 57.80, 49.17, 52.53, 49.71, 49.57, 63.69, 47.74, 65.16, 
+           34.51, 55.85, 51.24, 52.16, 53.80, 44.98, 46.67, 39.81, 39.28, 53.04, 54.48, 50.53, 59.22, 70.50, 
+           45.09, 26.91, 60.06, 42.91, 43.12, 60.26, 47.15, 37.79, 51.81, 48.61, 50.06, 53.85, 46.29, 56.44, 
+           47.80, 53.32, 60.97, 54.35, 46.74, 61.49, 59.94, 55.48, 52.39, 43.72, 63.61, 44.00, 71.87, 65.33, 
+           47.64, 39.74)
+
+list2 <- c(44.34, 48.85, 41.30, 39.79, 30.73, 44.32, 33.23, 19.98, 39.30, 58.78, 36.37, 54.12, 20.73, 44.17, 
+           52.79, 49.52, 46.59, 35.39, 32.25, 29.64, 46.76, 30.79, 37.64, 41.16, 72.66, 35.22, 48.53, 46.17, 
+           30.57, 43.93, 66.67, 51.77, 45.62, 38.66, 14.20, 61.97, 23.09, 56.10, 73.64, 23.34, 55.53, 41.07, 
+           21.42, 22.28, 20.98, 37.04, 23.07, 55.32, 76.50, 25.69, 56.82, 56.54, 49.98, 29.87, 43.21, 40.79, 
+           53.44, 39.41, 59.65, 39.38, 60.79, 29.26, 26.10, 93.62, 38.75, 49.47, 54.55, 37.74, 52.75, 50.53, 
+           41.77, 45.98, 44.49, 76.93, 33.88, 28.56, 45.57, 49.66, 51.55, 38.12, 29.05, 63.95, 39.76, 32.02, 
+           41.46, 42.04, 61.65, 46.27, 56.31, 37.51, 48.22, 40.13, 46.42, 31.57, 25.34, 74.96, 54.01, 26.23, 
+           35.83, 27.22)
+
+```
+
+These list were generated using the following code
+
+set.seed(123)  # Setting a seed for reproducibility
+list1 <- round(rnorm(100, mean = 50, sd = 10), 2)  # Generating 100 values from a normal distribution
+list2 <- round(rnorm(100, mean = 45, sd = 15), 2)  # Generating 100 values from another normal distribution
+
+
+Compare the distributions of these two lists to determine if they originate from the same distribution or from different distributions.
+
+1. Use geom_density to create a density plot for each list on the same graph. Use different colors to distinguish between the two lists:
+```{r}
+DataFrame <- data.frame(Species = c(rep("list1", 100), rep("list2", 100)), density = c(list1, list2))
+
+ggplot(DataFrame, aes(x = density, fill = Species)) +
+  geom_density(alpha = 0.5)
+
+mean(list1) - mean(list2)
+
+```
+
+Examine the plot you have generated. Do you think list1 and list2 come from the same distribution or different distributions? Why?
+Write down your observations and reasoning.
+* Write your answer below
+
+#I would say no. list one seems to have a narrower variance showing a different SD from the mean compared with List2. List2 is more squat with a larger variance. It seems these two have differing parameters so I would say they are different distributions.
